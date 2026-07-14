@@ -1,0 +1,16 @@
+[Unit]
+Description=DocAI Cloud FastAPI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=dias
+Group=dias
+WorkingDirectory=/home/dias/docai/backend
+EnvironmentFile=/home/dias/docai/backend/.env
+ExecStart=/home/dias/docai/backend/venv/bin/python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<head>
+    <title>Projects</title>
+</head>
+
+<body>
+    <h1>My Projects</h1>
+
+
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Status</th>
+    </tr>
+
+    {% for project in projects %}
+    <tr>
+        
+    <td>
+        <a href="/projects/{{ project.id }}">
+             {{ project.repo_name }}
+        </a>
+    </td>
+
+    <td>
+        <p>{{ project.status }}</p>
+    </td>
+
+    </tr>
+
+    {% endfor %}
+</table>
+
+</body>
+</html>

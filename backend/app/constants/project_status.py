@@ -1,0 +1,8 @@
+
+
+class ProjectStatus:
+    CREATED = "CREATED"
+    BUILDING = "BUILDING"
+    RUNNING = "RUNNING"
+    FAILED = "FAILED"
+    STOPPED = "STOPPED"

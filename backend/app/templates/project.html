@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>{{project.repo_name}}</title>
+</head>
+
+<body>
+    <h1>{{project.repo_name}}</h1>
+    <p>Status: {{project.status}}</p>
+    <p>Branch: {{project.default_branch}} </p>
+
+    <p>Repository</p>
+
+    <p>{{project.clone_url}}</p>
+
+    <form action="/projects/{{project.id}}/deploy" method="post">
+    <button type="submit"> Deploy</button>
+    </form>
+</body>
+
+</html>
+

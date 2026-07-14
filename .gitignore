@@ -1,0 +1,25 @@
+.DS_Store
+.vite
+
+backend/.env
+backend/__pycache__/
+backend/**/*.pyc
+backend/deployments/
+backend/users.db
+backend/venv/
+
+frontend/dist/
+frontend/node_modules/
+frontend/.vite/
+
+# Logs
+*.log
+backend/logs/
+
+# Temporary files
+backend/temp/
+
+# macOS
+.AppleDouble
+.LSOverride
+._*

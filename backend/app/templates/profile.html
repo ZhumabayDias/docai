@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{user.login}}</title>
+</head>
+
+<body>
+    <img src="{{ user.avatar_url }}" width="150">
+    <h1>{{user.login}}</h1>
+
+    <h2>Repositories</h2>
+
+    <a href="/projects">
+        My Projects
+    </a>
+
+    <ul>
+        {% for repo in repos %}
+        <div class="repo-card">
+            <h3>{{repo.name}}</h3>
+
+            <form action="/projects/import" method="post">
+
+                <input
+                type="hidden"
+                name="repo_id"
+                value="{{ repo.id}}"
+                >
+                
+                <button type="submit">
+                    Import
+                </button>
+            </form>
+        </div>
+        {% endfor %}
+    </ul>
+</body>
+</html>
