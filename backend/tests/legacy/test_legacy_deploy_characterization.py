@@ -47,7 +47,7 @@ def authenticated_client(client, db_session):
 
 
 @pytest.fixture()
-def legacy_deploy_success(monkeypatch, tmp_path):
+def legacy_deploy_success(monkeypatch):
     calls = []
 
     def fake_run(command, capture_output, text, check):
@@ -61,7 +61,6 @@ def legacy_deploy_success(monkeypatch, tmp_path):
         )
         return SimpleNamespace(stdout="cloned\n")
 
-    monkeypatch.setattr("app.services.deploy_service.DEPLOYMENTS_DIR", tmp_path)
     monkeypatch.setattr("app.services.deploy_service.time.sleep", lambda _: None)
     monkeypatch.setattr("app.services.deploy_service.subprocess.run", fake_run)
 
@@ -72,7 +71,7 @@ def test_api_deploy_mutates_project_status_to_running(
     authenticated_client,
     db_session,
     legacy_deploy_success,
-    tmp_path,
+    test_deployments_dir,
 ):
     client, user = authenticated_client
     project = create_project(db_session, user)
@@ -92,14 +91,14 @@ def test_api_deploy_mutates_project_status_to_running(
                 "git",
                 "clone",
                 project.clone_url,
-                str(tmp_path / str(project.id)),
+                str(test_deployments_dir / str(project.id)),
             ],
             "capture_output": True,
             "text": True,
             "check": True,
         }
     ]
-    assert (tmp_path / str(project.id)).is_dir()
+    assert (test_deployments_dir / str(project.id)).is_dir()
 
     read_after_deploy = client.get(f"/api/projects/{project.id}")
     assert read_after_deploy.status_code == 200
@@ -124,7 +123,6 @@ def test_deploy_failure_persists_failed_project_status(
     client_without_server_exceptions,
     db_session,
     monkeypatch,
-    tmp_path,
 ):
     user = create_user(db_session)
     project = create_project(db_session, user)
@@ -133,7 +131,6 @@ def test_deploy_failure_persists_failed_project_status(
     def fake_run(*args, **kwargs):
         raise subprocess.CalledProcessError(returncode=128, cmd=args[0])
 
-    monkeypatch.setattr("app.services.deploy_service.DEPLOYMENTS_DIR", tmp_path)
     monkeypatch.setattr("app.services.deploy_service.time.sleep", lambda _: None)
     monkeypatch.setattr("app.services.deploy_service.subprocess.run", fake_run)
 

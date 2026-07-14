@@ -1,4 +1,5 @@
 import sys
+import shutil
 from pathlib import Path
 
 import pytest
@@ -38,6 +39,25 @@ def db_session():
         session.close()
         Base.metadata.drop_all(bind=engine)
         engine.dispose()
+
+
+@pytest.fixture()
+def test_deployments_dir(tmp_path):
+    deployments_dir = tmp_path / "deployments"
+    deployments_dir.mkdir()
+
+    try:
+        yield deployments_dir
+    finally:
+        shutil.rmtree(deployments_dir, ignore_errors=True)
+        assert not deployments_dir.exists()
+
+
+@pytest.fixture(autouse=True)
+def isolated_deployment_workspace(monkeypatch, test_deployments_dir):
+    monkeypatch.setattr("app.config.DEPLOYMENTS_DIR", test_deployments_dir)
+    monkeypatch.setattr("app.services.deploy_service.DEPLOYMENTS_DIR", test_deployments_dir)
+    return test_deployments_dir
 
 
 @pytest.fixture()
