@@ -1,4 +1,4 @@
-import { Bell, Github, LogOut, Plus } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "./Button";

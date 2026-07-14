@@ -24,3 +24,8 @@ SECRET_KEY = os.getenv("SECRET_KEY", "very_secure_key")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+DEPLOYMENT_ENGINE_ENABLED = (
+    os.getenv("DEPLOYMENT_ENGINE_ENABLED", "false").strip().lower()
+    in {"1", "true", "yes", "on"}
+)
+

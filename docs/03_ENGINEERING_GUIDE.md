@@ -588,3 +588,21 @@ not replacement.
 
 Whenever uncertain,
 choose the solution that keeps the architecture simpler.
+
+---
+
+# 7. CI and Deployment Feature Gate
+
+Pull requests must keep backend and frontend checks passing.
+
+The CI workflow runs:
+
+- backend dependency installation
+- backend tests with `python -m pytest backend/tests`
+- frontend dependency installation
+- frontend lint with `npm run lint`
+- frontend build with `npm run build`
+
+The RFC-0001 Deployment Engine is guarded by `DEPLOYMENT_ENGINE_ENABLED`.
+
+The flag defaults to disabled. Do not expose new deployment-engine routes or behavior unless a later task explicitly requires it.

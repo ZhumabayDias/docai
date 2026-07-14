@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Trash2, Rocket } from "lucide-react";
+import { ArrowLeft, Rocket } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "../components/Button";
