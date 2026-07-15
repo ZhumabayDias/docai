@@ -89,7 +89,8 @@ def delete_project(
 
     if project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    
-    repository.delete(project)
-    
 
+    service = DeployService(repository)
+    service.delete(project)
+
+    repository.delete(project)

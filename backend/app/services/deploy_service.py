@@ -77,9 +77,13 @@ class DeployService:
             container_name = self.get_container_name(project)
             deployment_port = self.get_deployment_port(project)
 
+            previous_image_id = self.get_image_id(image_name)
+
             self.remove_existing_container(container_name)
             self.build_image(image_name, project_dir)
             self.run_container(container_name, image_name, deployment_port)
+
+            self.remove_stale_image(image_name, previous_image_id)
 
             deployment_url = self.get_deployment_url(deployment_port)
             self.repository.mark_running(
@@ -92,6 +96,18 @@ class DeployService:
         except Exception:
             self.repository.mark_failed(project)
             raise
+
+        return project
+
+
+    def delete(self, project: Project):
+        container_name = self.get_container_name(project)
+        image_name = self.get_image_name(project)
+
+        self.stop_container(container_name)
+        self.remove_existing_container(container_name)
+        self.remove_image(image_name)
+        self.remove_project_directory(project)
 
         return project
     
@@ -212,6 +228,78 @@ class DeployService:
         )
 
 
+    def get_image_id(self, image_name: str) -> str:
+        result = subprocess.run(
+            [
+                "docker",
+                "images",
+                "-q",
+                image_name,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        return result.stdout.strip()
+
+
+    def remove_stale_image(self, image_name: str, previous_image_id: str):
+        if previous_image_id == "":
+            return
+
+        current_image_id = self.get_image_id(image_name)
+
+        if current_image_id == previous_image_id:
+            return
+
+        subprocess.run(
+            [
+                "docker",
+                "rmi",
+                "-f",
+                previous_image_id,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+
+    def stop_container(self, container_name: str):
+        subprocess.run(
+            [
+                "docker",
+                "stop",
+                container_name,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+
+    def remove_image(self, image_name: str):
+        subprocess.run(
+            [
+                "docker",
+                "rmi",
+                "-f",
+                image_name,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+
+    def remove_project_directory(self, project: Project):
+        project_dir = self.get_project_directory(project)
+
+        if project_dir.exists():
+            shutil.rmtree(project_dir)
+
+
     def build_image(self, image_name: str, project_dir: Path):
         subprocess.run(
             [
@@ -248,5 +336,3 @@ class DeployService:
             text=True,
             check=True,
         )
-
-

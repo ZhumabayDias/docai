@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { Button } from "../components/Button";
 import { Card } from "../components/Card";
+import { DeploymentCard } from "../components/DeploymentCard";
 import { LoadingSpinner } from "../components/LoadingSpinner";
 import { StatusBadge } from "../components/StatusBadge";
 import { deleteProject, deployProject } from "../services/projects";
@@ -156,41 +157,45 @@ export function ProjectDetailsPage() {
           </dl>
         </Card>
 
-        <Card className="h-fit">
-          <h3 className="text-lg font-bold text-brand">Actions</h3>
-          <div className="mt-5 space-y-3">
-            <Button
-              className="w-full"
-              icon={<Rocket className="h-4 w-4" />}
-              disabled={actionInProgress !== null}
-              onClick={() => {
-                void handleDeploy();
-              }}
-            >
-              {actionInProgress === "deploy" ? "Deploying..." : "Deploy"}
-            </Button>
-            <Button
-              className="w-full text-accent-red hover:bg-accent-red/10 hover:text-accent-red"
-              disabled={actionInProgress !== null}
-              onClick={() => {
-                void handleDelete();
-              }}
-              variant="ghost"
-            >
-              {actionInProgress === "delete" ? "Deleting..." : "Delete"}
-            </Button>
-            <Button
-              className="w-full"
-              icon={<ArrowLeft className="h-4 w-4" />}
-              onClick={() => {
-                navigate("/dashboard");
-              }}
-              variant="secondary"
-            >
-              Return to Dashboard
-            </Button>
-          </div>
-        </Card>
+        <div className="space-y-4">
+          <DeploymentCard deploymentUrl={project.deployment_url} status={project.status} />
+
+          <Card className="h-fit">
+            <h3 className="text-lg font-bold text-brand">Actions</h3>
+            <div className="mt-5 space-y-3">
+              <Button
+                className="w-full"
+                icon={<Rocket className="h-4 w-4" />}
+                disabled={actionInProgress !== null}
+                onClick={() => {
+                  void handleDeploy();
+                }}
+              >
+                {actionInProgress === "deploy" ? "Deploying..." : "Deploy"}
+              </Button>
+              <Button
+                className="w-full text-accent-red hover:bg-accent-red/10 hover:text-accent-red"
+                disabled={actionInProgress !== null}
+                onClick={() => {
+                  void handleDelete();
+                }}
+                variant="ghost"
+              >
+                {actionInProgress === "delete" ? "Deleting..." : "Delete"}
+              </Button>
+              <Button
+                className="w-full"
+                icon={<ArrowLeft className="h-4 w-4" />}
+                onClick={() => {
+                  navigate("/dashboard");
+                }}
+                variant="secondary"
+              >
+                Return to Dashboard
+              </Button>
+            </div>
+          </Card>
+        </div>
       </section>
     </div>
   );

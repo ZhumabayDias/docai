@@ -120,6 +120,17 @@ def test_api_deploy_mutates_project_status_to_running(
         {
             "command": [
                 "docker",
+                "images",
+                "-q",
+                f"docai-project-{project.id}:latest",
+            ],
+            "capture_output": True,
+            "text": True,
+            "check": False,
+        },
+        {
+            "command": [
+                "docker",
                 "rm",
                 "-f",
                 f"docai-project-{project.id}",
@@ -154,7 +165,18 @@ def test_api_deploy_mutates_project_status_to_running(
             "capture_output": True,
             "text": True,
             "check": True,
-        }
+        },
+        {
+            "command": [
+                "docker",
+                "images",
+                "-q",
+                f"docai-project-{project.id}:latest",
+            ],
+            "capture_output": True,
+            "text": True,
+            "check": False,
+        },
     ]
     assert (test_deployments_dir / str(project.id)).is_dir()
     assert (test_deployments_dir / str(project.id) / "Dockerfile").is_file()
