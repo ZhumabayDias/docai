@@ -23,3 +23,7 @@ backend/temp/
 .AppleDouble
 .LSOverride
 ._*
+
+__pycache__/
+*.pyc
+prompts/

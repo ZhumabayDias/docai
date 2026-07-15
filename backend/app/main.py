@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from app.config import CORS_ORIGINS
-from app.database import Base, engine
+from app.database import Base, engine, ensure_mvp_project_columns
 from app.routes import api_projects, auth, deploy, projects, users
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,3 +31,4 @@ if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 Base.metadata.create_all(bind=engine)
+ensure_mvp_project_columns()

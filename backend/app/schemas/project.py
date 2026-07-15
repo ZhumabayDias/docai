@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import ConfigDict
 from pydantic import BaseModel
 
@@ -27,6 +28,7 @@ class ProjectResponse(BaseModel):
     repo_name: str
     status: str
     created_at: datetime
+    deployment_url: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True )
 
@@ -39,6 +41,8 @@ class ProjectDetailResponse(BaseModel):
     default_branch:str
     private: bool
     status: str
+    deployment_url: Optional[str] = None
     created_at: datetime
+    updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

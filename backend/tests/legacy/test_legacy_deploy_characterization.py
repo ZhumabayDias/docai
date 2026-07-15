@@ -1,4 +1,5 @@
 import subprocess
+from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
@@ -51,6 +52,25 @@ def legacy_deploy_success(monkeypatch):
     calls = []
 
     def fake_run(command, capture_output, text, check):
+        if command[:2] == ["git", "clone"]:
+            project_dir = Path(command[3])
+            project_dir.mkdir(parents=True, exist_ok=True)
+            (project_dir / "package.json").write_text(
+                """
+                {
+                  "scripts": {
+                    "build": "vite build"
+                  },
+                  "dependencies": {
+                    "@vitejs/plugin-react": "latest",
+                    "vite": "latest",
+                    "react": "latest",
+                    "react-dom": "latest"
+                  }
+                }
+                """
+            )
+
         calls.append(
             {
                 "command": command,
@@ -61,7 +81,6 @@ def legacy_deploy_success(monkeypatch):
         )
         return SimpleNamespace(stdout="cloned\n")
 
-    monkeypatch.setattr("app.services.deploy_service.time.sleep", lambda _: None)
     monkeypatch.setattr("app.services.deploy_service.subprocess.run", fake_run)
 
     return calls
@@ -85,6 +104,7 @@ def test_api_deploy_mutates_project_status_to_running(
     assert response.status_code == 200
     assert response.json()["id"] == project.id
     assert response.json()["status"] == ProjectStatus.RUNNING
+    assert response.json()["deployment_url"] == "http://127.0.0.1:9000"
     assert legacy_deploy_success == [
         {
             "command": [
@@ -96,13 +116,54 @@ def test_api_deploy_mutates_project_status_to_running(
             "capture_output": True,
             "text": True,
             "check": True,
+        },
+        {
+            "command": [
+                "docker",
+                "rm",
+                "-f",
+                f"docai-project-{project.id}",
+            ],
+            "capture_output": True,
+            "text": True,
+            "check": False,
+        },
+        {
+            "command": [
+                "docker",
+                "build",
+                "-t",
+                f"docai-project-{project.id}:latest",
+                str(test_deployments_dir / str(project.id)),
+            ],
+            "capture_output": True,
+            "text": True,
+            "check": True,
+        },
+        {
+            "command": [
+                "docker",
+                "run",
+                "-d",
+                "--name",
+                f"docai-project-{project.id}",
+                "-p",
+                "9000:80",
+                f"docai-project-{project.id}:latest",
+            ],
+            "capture_output": True,
+            "text": True,
+            "check": True,
         }
     ]
     assert (test_deployments_dir / str(project.id)).is_dir()
+    assert (test_deployments_dir / str(project.id) / "Dockerfile").is_file()
+    assert (test_deployments_dir / str(project.id) / ".docai" / "nginx.conf").is_file()
 
     read_after_deploy = client.get(f"/api/projects/{project.id}")
     assert read_after_deploy.status_code == 200
     assert read_after_deploy.json()["status"] == ProjectStatus.RUNNING
+    assert read_after_deploy.json()["deployment_url"] == "http://127.0.0.1:9000"
 
 
 def test_legacy_html_deploy_route_returns_status_only(
@@ -131,7 +192,6 @@ def test_deploy_failure_persists_failed_project_status(
     def fake_run(*args, **kwargs):
         raise subprocess.CalledProcessError(returncode=128, cmd=args[0])
 
-    monkeypatch.setattr("app.services.deploy_service.time.sleep", lambda _: None)
     monkeypatch.setattr("app.services.deploy_service.subprocess.run", fake_run)
 
     response = client_without_server_exceptions.post(f"/api/projects/{project.id}/deploy")

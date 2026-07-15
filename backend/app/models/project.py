@@ -4,6 +4,7 @@ from app.database import Base
 
 
 from datetime import datetime
+from typing import Optional
 
 from app.constants.project_status import ProjectStatus
 
@@ -29,6 +30,10 @@ class Project(Base):
     clone_url: Mapped[str]
 
     status: Mapped[str] = mapped_column(default=ProjectStatus.CREATED)
+
+    deployment_url: Mapped[Optional[str]] = mapped_column(nullable=True)
+    deployment_port: Mapped[Optional[int]] = mapped_column(nullable=True)
+    container_name: Mapped[Optional[str]] = mapped_column(nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 

@@ -1,4 +1,5 @@
 from app.models.project import Project
+from app.constants.project_status import ProjectStatus
 from sqlalchemy.orm import Session
 
 class ProjectRepository:
@@ -50,6 +51,32 @@ class ProjectRepository:
               status: str
     ):
          project.status = status
+         self.db.commit()
+         self.db.refresh(project)
+
+         return project
+
+    def mark_running(
+              self,
+              project: Project,
+              deployment_url: str,
+              deployment_port: int,
+              container_name: str
+    ):
+         project.status = ProjectStatus.RUNNING
+         project.deployment_url = deployment_url
+         project.deployment_port = deployment_port
+         project.container_name = container_name
+         self.db.commit()
+         self.db.refresh(project)
+
+         return project
+
+    def mark_failed(
+              self,
+              project: Project
+    ):
+         project.status = ProjectStatus.FAILED
          self.db.commit()
          self.db.refresh(project)
 

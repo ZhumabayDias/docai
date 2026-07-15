@@ -11,6 +11,10 @@ DEPLOYMENTS_DIR = BASE_DIR / "deployments"
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID", "")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET", "")
 
+DEPLOYMENT_BASE_URL = os.getenv("DEPLOYMENT_BASE_URL", "http://127.0.0.1")
+DEPLOYMENT_PORT_START = int(os.getenv("DEPLOYMENT_PORT_START", "9000"))
+DEPLOYMENT_PORT_END = int(os.getenv("DEPLOYMENT_PORT_END", "9999"))
+
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(

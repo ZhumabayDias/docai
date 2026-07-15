@@ -10,6 +10,7 @@ export interface Project {
   default_branch?: string;
   private?: boolean;
   clone_url?: string;
+  deployment_url?: string | null;
   updated_at?: string;
 }
 
@@ -21,6 +22,7 @@ export interface ProjectDetailResponse {
   default_branch: string;
   private: boolean;
   status: DeploymentStatus;
+  deployment_url: string | null;
   created_at: string;
   updated_at: string;
 }
