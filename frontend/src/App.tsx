@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardLayout } from "./layouts/DashboardLayout";
 import { MarketingLayout } from "./layouts/MarketingLayout";
 import { DashboardPage } from "./pages/DashboardPage";
+import { FeaturesPage } from "./pages/FeaturesPage";
 import { LandingPage } from "./pages/LandingPage";
 import { MarketingPlaceholderPage } from "./pages/MarketingPlaceholderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -16,7 +17,7 @@ export default function App() {
     <Routes>
       <Route element={<MarketingLayout />}>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/features" element={<MarketingPlaceholderPage title="Features" />} />
+        <Route path="/features" element={<FeaturesPage />} />
         <Route path="/deploy" element={<MarketingPlaceholderPage title="Deploy" />} />
         <Route path="/pricing" element={<MarketingPlaceholderPage title="Pricing" />} />
         <Route path="/docs" element={<MarketingPlaceholderPage title="Documentation" />} />
