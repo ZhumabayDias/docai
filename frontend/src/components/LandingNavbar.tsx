@@ -1,5 +1,6 @@
 import { Github, Menu, X } from "lucide-react";
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 import { Button } from "./Button";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,65 +8,44 @@ import { useAuth } from "../contexts/AuthContext";
 import logo from "../assets/images/logo.png";
 
 const landingNavigation = [
-  { label: "Features", href: "#features", id: "features" },
-  { label: "Deploy", href: "#deploy", id: "deploy" },
-  { label: "Pricing", href: "#pricing", id: "pricing" },
-  { label: "Docs", href: "#docs", id: "docs" },
-  { label: "Contact", href: "#contact", id: "contact" },
+  { label: "Home", to: "/" },
+  { label: "Features", to: "/features" },
+  { label: "Deploy", to: "/deploy" },
+  { label: "Pricing", to: "/pricing" },
+  { label: "Docs", to: "/docs" },
+  { label: "Contact", to: "/contact" },
 ];
 
-type LandingNavbarProps = {
-  activeSection: string;
-};
-
-export function LandingNavbar({ activeSection }: LandingNavbarProps) {
+export function LandingNavbar() {
   const { login } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const handleNavigate = (sectionId: string) => {
-    document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth" });
-    setIsMenuOpen(false);
-  };
-
-  const renderNavLink = ({ label, href, id }: (typeof landingNavigation)[number]) => {
-    const isActive = activeSection === id;
-
-    return (
-      <a
-        key={id}
-        href={href}
-        aria-current={isActive ? "page" : undefined}
-        className={`relative rounded-sm text-sm transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
-          isActive ? "text-white" : "text-gray-300 hover:text-white"
-        }`}
-        onClick={(event) => {
-          event.preventDefault();
-          handleNavigate(id);
-        }}
-      >
-        {label}
-        <span
-          className={`absolute -bottom-2 left-0 h-px bg-white transition-all duration-300 ${
-            isActive ? "w-full opacity-100" : "w-0 opacity-0"
-          }`}
-        />
-      </a>
-    );
-  };
+  const renderNavLink = ({ label, to }: (typeof landingNavigation)[number]) => (
+    <NavLink
+      key={to}
+      to={to}
+      end={to === "/"}
+      className={({ isActive }) =>
+        `relative rounded-sm text-sm transition duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black ${
+          isActive ? "text-white after:w-full after:opacity-100" : "text-gray-300 hover:text-white after:w-0 after:opacity-0"
+        } after:absolute after:-bottom-2 after:left-0 after:h-px after:bg-white after:transition-all after:duration-300`
+      }
+      onClick={() => setIsMenuOpen(false)}
+    >
+      {label}
+    </NavLink>
+  );
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
 
         {/* Logo */}
-        <a
-          href="#hero"
+        <NavLink
+          to="/"
           className="flex items-center gap-3 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
           aria-label="DocAI Cloud home"
-          onClick={(event) => {
-            event.preventDefault();
-            handleNavigate("hero");
-          }}
+          onClick={() => setIsMenuOpen(false)}
         >
           <img
             src={logo}
@@ -76,10 +56,10 @@ export function LandingNavbar({ activeSection }: LandingNavbarProps) {
           <span className="text-xl font-bold text-white">
              DocAI Cloud
           </span>
-        </a>
+        </NavLink>
 
         {/* Navigation */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav className="hidden items-center gap-8 md:flex" aria-label="Marketing navigation">
           {landingNavigation.map(renderNavLink)}
         </nav>
 
@@ -126,6 +106,28 @@ export function LandingNavbar({ activeSection }: LandingNavbarProps) {
       >
         <div className="mx-auto flex max-w-7xl flex-col gap-4">
           {landingNavigation.map(renderNavLink)}
+          <div className="flex flex-col gap-3 border-t border-white/10 pt-4">
+            <Button
+              variant="ghost"
+              className="justify-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              onClick={() => {
+                setIsMenuOpen(false);
+                login();
+              }}
+            >
+              Login
+            </Button>
+            <Button
+              icon={<Github className="h-4 w-4" />}
+              className="justify-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+              onClick={() => {
+                setIsMenuOpen(false);
+                login();
+              }}
+            >
+              Continue with GitHub
+            </Button>
+          </div>
         </div>
       </nav>
     </header>

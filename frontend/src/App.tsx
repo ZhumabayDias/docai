@@ -2,8 +2,10 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { DashboardLayout } from "./layouts/DashboardLayout";
+import { MarketingLayout } from "./layouts/MarketingLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { LandingPage } from "./pages/LandingPage";
+import { MarketingPlaceholderPage } from "./pages/MarketingPlaceholderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { ProfilePage } from "./pages/ProfilePage";
@@ -12,7 +14,14 @@ import { ProjectDetailsPage } from "./pages/ProjectDetailsPage";
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<LandingPage />} />
+      <Route element={<MarketingLayout />}>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/features" element={<MarketingPlaceholderPage title="Features" />} />
+        <Route path="/deploy" element={<MarketingPlaceholderPage title="Deploy" />} />
+        <Route path="/pricing" element={<MarketingPlaceholderPage title="Pricing" />} />
+        <Route path="/docs" element={<MarketingPlaceholderPage title="Documentation" />} />
+        <Route path="/contact" element={<MarketingPlaceholderPage title="Contact" />} />
+      </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
