@@ -5,6 +5,7 @@ import { DashboardLayout } from "./layouts/DashboardLayout";
 import { MarketingLayout } from "./layouts/MarketingLayout";
 import { DashboardPage } from "./pages/DashboardPage";
 import { DeployPage } from "./pages/DeployPage";
+import { DocumentationPage } from "./pages/DocumentationPage";
 import { FeaturesPage } from "./pages/FeaturesPage";
 import { LandingPage } from "./pages/LandingPage";
 import { MarketingPlaceholderPage } from "./pages/MarketingPlaceholderPage";
@@ -22,7 +23,7 @@ export default function App() {
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/deploy" element={<DeployPage />} />
         <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/docs" element={<MarketingPlaceholderPage title="Documentation" />} />
+        <Route path="/docs" element={<DocumentationPage />} />
         <Route path="/contact" element={<MarketingPlaceholderPage title="Contact" />} />
       </Route>
       <Route element={<ProtectedRoute />}>
