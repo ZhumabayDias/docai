@@ -10,6 +10,7 @@ import { LandingPage } from "./pages/LandingPage";
 import { MarketingPlaceholderPage } from "./pages/MarketingPlaceholderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
+import { PricingPage } from "./pages/PricingPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { ProjectDetailsPage } from "./pages/ProjectDetailsPage";
 
@@ -20,7 +21,7 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/deploy" element={<DeployPage />} />
-        <Route path="/pricing" element={<MarketingPlaceholderPage title="Pricing" />} />
+        <Route path="/pricing" element={<PricingPage />} />
         <Route path="/docs" element={<MarketingPlaceholderPage title="Documentation" />} />
         <Route path="/contact" element={<MarketingPlaceholderPage title="Contact" />} />
       </Route>
