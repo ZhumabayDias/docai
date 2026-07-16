@@ -8,12 +8,12 @@ import { DeployPage } from "./pages/DeployPage";
 import { DocumentationPage } from "./pages/DocumentationPage";
 import { FeaturesPage } from "./pages/FeaturesPage";
 import { LandingPage } from "./pages/LandingPage";
-import { MarketingPlaceholderPage } from "./pages/MarketingPlaceholderPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { PricingPage } from "./pages/PricingPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { ProjectDetailsPage } from "./pages/ProjectDetailsPage";
+import { ContactPage } from "./pages/ContactPage";
 
 export default function App() {
   return (
@@ -24,7 +24,7 @@ export default function App() {
         <Route path="/deploy" element={<DeployPage />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/docs" element={<DocumentationPage />} />
-        <Route path="/contact" element={<MarketingPlaceholderPage title="Contact" />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Route>
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
