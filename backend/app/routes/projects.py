@@ -11,6 +11,7 @@ from fastapi import Depends, APIRouter, HTTPException, status, Form, Request
 from fastapi.templating import Jinja2Templates
 
 from app.services.github_service import find_user, get_repo
+from app.services.subdomain_service import SubdomainService
 from fastapi.responses import RedirectResponse
 
 router = APIRouter()
@@ -76,6 +77,10 @@ def import_project(
         clone_url=repo["clone_url"],
     )
 
+    subdomain_service = SubdomainService(repository)
+    db_project.subdomain = subdomain_service.generate_subdomain(
+        current_user.login, repo["name"]
+    )
 
     repository.create(db_project)
 

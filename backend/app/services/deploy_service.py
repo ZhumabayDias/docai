@@ -5,14 +5,15 @@ import shutil
 from urllib.parse import quote
 
 from app.config import (
-    DEPLOYMENT_BASE_URL,
     DEPLOYMENT_PORT_END,
     DEPLOYMENT_PORT_START,
+    DEPLOYMENT_SUBDOMAIN_BASE,
     DEPLOYMENTS_DIR,
 )
 from app.constants.project_status import ProjectStatus
 from app.models.project import Project
 from app.repositories.project_repository import ProjectRepository
+from app.services.subdomain_service import ensure_project_subdomain
 
 
 DOCKERFILE = """FROM node:20-alpine AS build
@@ -85,7 +86,7 @@ class DeployService:
 
             self.remove_stale_image(image_name, previous_image_id)
 
-            deployment_url = self.get_deployment_url(deployment_port)
+            deployment_url = self.get_deployment_url(project)
             self.repository.mark_running(
                 project,
                 deployment_url,
@@ -210,8 +211,22 @@ class DeployService:
         return DEPLOYMENT_PORT_START + ((project.id - 1) % port_count)
 
 
-    def get_deployment_url(self, deployment_port: int):
-        return f"{DEPLOYMENT_BASE_URL}:{deployment_port}"
+    def get_deployment_url(self, project: Project) -> str:
+        """Build the public deployment URL for a project.
+
+        Uses `https://{project.subdomain}.{DEPLOYMENT_SUBDOMAIN_BASE}`
+        instead of the old `http://IP:PORT` scheme. This URL is not yet
+        wired up to real routing (no Nginx/DNS changes in this PR) — it is
+        only stored on the project record in preparation for PR-2.
+
+        Projects imported before subdomains existed are backfilled lazily
+        here, so every deploy ends up with a subdomain regardless of when
+        the project was imported.
+        """
+        github_login = project.user.login
+        subdomain = ensure_project_subdomain(project, self.repository, github_login)
+
+        return f"https://{subdomain}.{DEPLOYMENT_SUBDOMAIN_BASE}"
 
 
     def remove_existing_container(self, container_name: str):

@@ -29,6 +29,12 @@ class Project(Base):
 
     clone_url: Mapped[str]
 
+    # Uniqueness of subdomain is enforced at the application layer (see
+    # SubdomainService), not via a DB-level UNIQUE constraint: SQLite's
+    # `ALTER TABLE ADD COLUMN` (used by the lightweight migration helper in
+    # app.database) cannot add a UNIQUE constraint to an existing table.
+    subdomain: Mapped[Optional[str]] = mapped_column(nullable=True, index=True)
+
     status: Mapped[str] = mapped_column(default=ProjectStatus.CREATED)
 
     deployment_url: Mapped[Optional[str]] = mapped_column(nullable=True)

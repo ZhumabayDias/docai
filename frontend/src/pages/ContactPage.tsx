@@ -215,10 +215,7 @@ import {
                 </Button>
               </div>
             </Card>
-          </section>
-  
-          <MarketingFooter />
-  
+          </section>  
         </div>
       </>
     );
