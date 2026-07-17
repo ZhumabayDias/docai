@@ -18,6 +18,10 @@ import logging
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response
 from sqlalchemy.orm import Session
 
+from fastapi import Header
+
+from app.config import INTERNAL_ROUTING_TOKEN
+
 from app.config import ROUTING_TRUSTED_PROXY_IPS
 from app.database import get_db
 from app.repositories.routing_repository import RoutingRepository
@@ -46,14 +50,14 @@ _REJECTION_STATUS_CODES = {
 }
 
 
-def require_trusted_caller(request: Request) -> None:
-    client_host = request.client.host if request.client else None
+def require_trusted_caller(
 
-    if client_host not in ROUTING_TRUSTED_PROXY_IPS:
-        logger.warning(
-            "routing.untrusted_caller_rejected",
-            extra={"client_host": client_host},
-        )
+    x_internal_token: str | None = Header(default=None, alias="X-Internal-Token"),
+
+) -> None:
+
+    if x_internal_token != INTERNAL_ROUTING_TOKEN:
+
         raise HTTPException(status_code=403, detail="Forbidden")
 
 

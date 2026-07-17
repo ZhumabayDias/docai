@@ -50,3 +50,5 @@ DEPLOYMENT_ENGINE_ENABLED = (
     in {"1", "true", "yes", "on"}
 )
 
+
+INTERNAL_ROUTING_TOKEN = os.getenv("INTERNAL_ROUTING_TOKEN", "")
