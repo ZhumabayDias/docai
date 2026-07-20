@@ -102,28 +102,6 @@ const comparisonRows: ComparisonRow[] = [
   { feature: "Team Workspaces", free: false, pro: false, enterprise: false },
 ];
 
-const faqs: Faq[] = [
-  {
-    question: "Is Docai Cloud free?",
-    answer: "Yes. The Free plan is available now for learning, personal projects and MVP development.",
-  },
-  {
-    question: "Can I deploy private repositories?",
-    answer: "Docai Cloud uses GitHub OAuth, so repository access depends on the permissions granted through your GitHub account.",
-  },
-  {
-    question: "Which frameworks are currently supported?",
-    answer: "Current deployment support is focused on React + Vite projects running in Docker containers.",
-  },
-  {
-    question: "Do I need Docker installed locally?",
-    answer: "No. Docker image creation and container deployment are handled by Docai Cloud on the deployment server.",
-  },
-  {
-    question: "When will Pro become available?",
-    answer: "Pro is planned for a future release. It is not available yet, and unavailable features are marked as Coming Soon.",
-  },
-];
 
 function AvailabilityCell({ available }: { available: boolean }) {
   if (available) {
@@ -299,42 +277,7 @@ export function PricingPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-20" aria-labelledby="pricing-faq-title">
-        <div className="max-w-2xl">
-          <h2 id="pricing-faq-title" className="text-4xl font-black leading-tight text-white">
-            Frequently Asked Questions
-          </h2>
-        </div>
-        <div className="mt-10 space-y-3">
-          {faqs.map((faq, index) => {
-            const isOpen = openFaq === index;
-            const answerId = `pricing-faq-answer-${index}`;
 
-            return (
-              <div key={faq.question} className="rounded-lg border border-white/10 bg-surface-raised">
-                <h3>
-                  <button
-                    type="button"
-                    className="flex w-full items-center justify-between gap-4 rounded-lg px-5 py-4 text-left text-base font-semibold text-white transition hover:bg-white/[0.03] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                    aria-expanded={isOpen}
-                    aria-controls={answerId}
-                    onClick={() => setOpenFaq(isOpen ? -1 : index)}
-                  >
-                    {faq.question}
-                    <ChevronDown
-                      className={cn("h-5 w-5 shrink-0 text-gray-400 transition", isOpen && "rotate-180")}
-                      aria-hidden="true"
-                    />
-                  </button>
-                </h3>
-                <div id={answerId} hidden={!isOpen} className="px-5 pb-5 text-sm leading-7 text-gray-400">
-                  {faq.answer}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
 
       <section className="mx-auto max-w-7xl px-6 py-24" aria-labelledby="pricing-cta-title">
         <div className="rounded-lg border border-white/10 bg-surface-raised px-6 py-16 text-center shadow-glow">

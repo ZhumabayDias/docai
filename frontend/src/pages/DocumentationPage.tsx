@@ -8,7 +8,6 @@ import {
   Layers3,
   Rocket,
   SquareStack,
-  Workflow,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -123,15 +122,11 @@ export function DocumentationPage() {
     <div className="bg-[#09090B]">
       <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-7xl flex-col justify-center px-6 py-24">
         <div className="max-w-3xl">
-          <div className="mb-6 inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-300">
-            <Workflow className="h-4 w-4 text-accent-green" aria-hidden="true" />
-            Developer documentation
-          </div>
           <h1 className="text-5xl font-black leading-tight text-white md:text-6xl">
-            Documentation
+            Documentation for Every Developer
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Everything you need to deploy your first application with Docai Cloud.
+            Everything you need to deploy, configure, and manage your applications with Docai Cloud.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Button
@@ -204,16 +199,7 @@ export function DocumentationPage() {
               <p className="mt-3 text-sm leading-7 text-gray-400">
                 {description}
               </p>
-              <div className="mt-auto pt-8">
-                <Button
-                  variant="secondary"
-                  className="w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-                  disabled
-                  aria-label={`${title} documentation is not available yet`}
-                >
-                  Read More
-                </Button>
-              </div>
+
             </Card>
           ))}
         </div>
