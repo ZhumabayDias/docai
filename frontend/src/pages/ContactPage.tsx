@@ -56,24 +56,20 @@ import {
   
           <section className="mx-auto flex min-h-[calc(100vh-64px)] max-w-7xl flex-col justify-center px-6 py-24">
   
-            <div className="mx-auto max-w-3xl text-center">
+            <div className="max-w-3xl">
   
-              <span className="inline-flex rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm font-semibold text-white">
-                Contact
-              </span>
-  
-              <h1 className="mt-6 text-5xl md:text-6xl font-black leading-tight text-white">
+              <h1 className="text-5xl font-black leading-tight text-white md:text-6xl">
                 We'd Love to Hear From You
               </h1>
   
-              <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-300">
+              <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
                 Whether you have questions, ideas, feedback, or simply want to
                 learn more about Docai Cloud, feel free to reach out.
                 We're always happy to connect with developers,
                 students and the open-source community.
               </p>
   
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
+              <div className="mt-8 flex flex-wrap gap-4">
   
                 <Button
                   icon={<ArrowRight className="h-4 w-4" />}
