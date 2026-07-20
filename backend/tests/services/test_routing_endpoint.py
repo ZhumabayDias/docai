@@ -55,16 +55,14 @@ def routing_app(db_session):
 
 
 @pytest.fixture()
-def routing_client(routing_app):
-    return TestClient(routing_app)
-
-
-@pytest.fixture(autouse=True)
-def trust_test_client(monkeypatch):
-    # FastAPI's TestClient identifies itself as "testclient" rather than a
-    # real loopback IP, so trust it only within this test module.
+def routing_client(routing_app, monkeypatch):
+    internal_routing_token = "test-internal-routing-token"
     monkeypatch.setattr(
-        "app.routes.routing.ROUTING_TRUSTED_PROXY_IPS", {"testclient", "127.0.0.1"}
+        "app.routes.routing.INTERNAL_ROUTING_TOKEN", internal_routing_token
+    )
+    return TestClient(
+        routing_app,
+        headers={"X-Internal-Token": internal_routing_token},
     )
 
 
@@ -123,11 +121,9 @@ def test_inactive_deployment_returns_503(db_session, routing_client):
 
 
 def test_untrusted_caller_is_rejected_regardless_of_hostname(
-    db_session, routing_app, monkeypatch
+    db_session, routing_app
 ):
-    # Simulate this endpoint being hit directly by something other than
-    # the platform's Nginx.
-    monkeypatch.setattr("app.routes.routing.ROUTING_TRUSTED_PROXY_IPS", {"127.0.0.1"})
+    # Simulate this endpoint being hit without Nginx's internal token.
     client = TestClient(routing_app)
 
     user = create_user(db_session)
