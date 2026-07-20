@@ -50,6 +50,43 @@ FRONTEND_PACKAGE_JSON = """
 """
 
 
+CRA_PACKAGE_JSON = """
+{
+  "name": "kiinip-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "proxy": "http://localhost:3001",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead"],
+    "development": ["last 1 chrome version"]
+  }
+}
+"""
+
+
+NODE_BACKEND_PACKAGE_JSON = """
+{
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.0",
+    "typescript": "^5.0.0"
+  }
+}
+"""
+
+
 def fullstack_clone(command, capture_output, text, check):
     """Simulates cloning a full-stack repo: backend/ (no package.json) +
     frontend/ (a valid React/Vite app)."""
@@ -65,6 +102,31 @@ def fullstack_clone(command, capture_output, text, check):
         frontend_dir.mkdir()
         (frontend_dir / "package.json").write_text(FRONTEND_PACKAGE_JSON)
         (frontend_dir / "vite.config.ts").write_text("export default {}")
+
+        return SimpleNamespace(stdout="cloned\n", returncode=0)
+
+    return SimpleNamespace(stdout="\n", returncode=0)
+
+
+def fullstack_cra_clone(command, capture_output, text, check):
+    """Simulates cloning the production full-stack shape: root package,
+    backend/ Node package, and frontend/ Create React App package."""
+    if command[:2] == ["git", "clone"]:
+        project_dir = Path(command[3])
+        project_dir.mkdir(parents=True, exist_ok=True)
+
+        (project_dir / "package.json").write_text(
+            '{"private": true, "scripts": {"build": "echo root"}}'
+        )
+
+        backend_dir = project_dir / "backend"
+        backend_dir.mkdir()
+        (backend_dir / "package.json").write_text(NODE_BACKEND_PACKAGE_JSON)
+
+        frontend_dir = project_dir / "frontend"
+        frontend_dir.mkdir()
+        (frontend_dir / "package.json").write_text(CRA_PACKAGE_JSON)
+        (frontend_dir / "src").mkdir()
 
         return SimpleNamespace(stdout="cloned\n", returncode=0)
 
@@ -134,6 +196,9 @@ def test_deploy_builds_from_detected_frontend_directory_not_repo_root(
 
     # Docker assets are written into frontend/, not the repository root.
     assert (frontend_dir / "Dockerfile").is_file()
+    assert "COPY --from=build /app/dist /usr/share/nginx/html" in (
+        frontend_dir / "Dockerfile"
+    ).read_text()
     assert (frontend_dir / ".docai" / "nginx.conf").is_file()
     assert not (project_dir / "Dockerfile").is_file()
 
@@ -169,6 +234,47 @@ def test_deploy_still_works_for_existing_root_level_frontend(
     build_commands = [command for command in calls if command[:2] == ["docker", "build"]]
     assert build_commands[0][-1] == str(project_dir)
     assert (project_dir / "Dockerfile").is_file()
+    assert "COPY --from=build /app/dist /usr/share/nginx/html" in (
+        project_dir / "Dockerfile"
+    ).read_text()
+
+
+def test_deploy_create_react_app_uses_detected_frontend_and_build_output(
+    db_session, monkeypatch, test_deployments_dir
+):
+    calls = []
+
+    def fake_run(command, capture_output, text, check):
+        calls.append(command)
+        return fullstack_cra_clone(command, capture_output, text, check)
+
+    monkeypatch.setattr("app.services.deploy_service.subprocess.run", fake_run)
+
+    user = create_user(db_session)
+    project = create_project(db_session, user)
+    repository = ProjectRepository(db_session)
+    service = DeployService(repository)
+
+    deployed = service.deploy(project)
+
+    project_dir = test_deployments_dir / str(project.id)
+    frontend_dir = project_dir / "frontend"
+
+    assert deployed.status == ProjectStatus.RUNNING
+    assert deployed.root_directory == "frontend"
+
+    build_commands = [command for command in calls if command[:2] == ["docker", "build"]]
+    assert len(build_commands) == 1
+    assert build_commands[0][-1] == str(frontend_dir)
+
+    dockerfile = (frontend_dir / "Dockerfile").read_text()
+    assert "RUN npm ci || npm install" in dockerfile
+    assert "RUN npm run build" in dockerfile
+    assert "COPY --from=build /app/build /usr/share/nginx/html" in dockerfile
+    assert "COPY --from=build /app/dist /usr/share/nginx/html" not in dockerfile
+    assert (frontend_dir / ".docai" / "nginx.conf").is_file()
+    assert not (project_dir / "Dockerfile").is_file()
+    assert (project_dir / "backend" / "package.json").is_file()
 
 
 # Clean deployment failure (no supported frontend anywhere in the repo).

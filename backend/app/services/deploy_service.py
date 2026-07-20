@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 import subprocess
 import shutil
@@ -14,13 +13,15 @@ from app.constants.project_status import ProjectStatus
 from app.models.project import Project
 from app.repositories.project_repository import ProjectRepository
 from app.services.frontend_detector import (
-    detect_frontend_root,
+    DetectedFrontend,
+    classify_frontend_directory,
+    detect_frontend,
     resolve_frontend_directory,
 )
 from app.services.subdomain_service import ensure_project_subdomain
 
 
-DOCKERFILE = """FROM node:20-alpine AS build
+DOCKERFILE_TEMPLATE = """FROM node:20-alpine AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci || npm install
@@ -29,7 +30,7 @@ RUN npm run build
 
 FROM nginx:1.27-alpine
 COPY .docai/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=build /app/{build_output_directory} /usr/share/nginx/html
 EXPOSE 80
 HEALTHCHECK --interval=10s --timeout=3s --retries=3 CMD wget -qO- http://127.0.0.1/ >/dev/null || exit 1
 CMD ["nginx", "-g", "daemon off;"]
@@ -49,6 +50,7 @@ NGINX_CONF = """server {
 
 DOCKERIGNORE = """node_modules
 dist
+build
 .git
 .env
 .env.*
@@ -75,11 +77,17 @@ class DeployService:
                 project_dir
             )
 
-            frontend_root = self.detect_frontend_root(project_dir)
-            frontend_dir = resolve_frontend_directory(project_dir, frontend_root)
+            detected_frontend = self.detect_frontend(project_dir)
+            frontend_dir = resolve_frontend_directory(
+                project_dir,
+                detected_frontend.root_directory,
+            )
 
-            self.validate_react_vite_project(frontend_dir)
-            self.write_docker_assets(frontend_dir)
+            self.validate_supported_frontend(frontend_dir, detected_frontend)
+            self.write_docker_assets(
+                frontend_dir,
+                detected_frontend.output_directory,
+            )
 
             image_name = self.get_image_name(project)
             container_name = self.get_container_name(project)
@@ -99,7 +107,7 @@ class DeployService:
                 deployment_url,
                 deployment_port,
                 container_name,
-                root_directory=frontend_root,
+                root_directory=detected_frontend.root_directory,
             )
 
         except Exception:
@@ -174,38 +182,48 @@ class DeployService:
         )
 
 
-    def detect_frontend_root(self, project_dir: Path) -> str:
+    def detect_frontend(self, project_dir: Path) -> DetectedFrontend:
         """Detect which repository-relative directory contains the
         deployable frontend. See `app.services.frontend_detector` for the
         detection rules.
         """
-        return detect_frontend_root(project_dir)
+        return detect_frontend(project_dir)
+
+
+    def detect_frontend_root(self, project_dir: Path) -> str:
+        """Backward-compatible wrapper returning only the frontend root."""
+        return self.detect_frontend(project_dir).root_directory
+
+
+    def validate_supported_frontend(
+            self,
+            project_dir: Path,
+            detected_frontend: DetectedFrontend | None = None
+    ):
+        classified_frontend = classify_frontend_directory(project_dir)
+
+        if detected_frontend is None:
+            return
+
+        if (
+            classified_frontend.build_type != detected_frontend.build_type
+            or classified_frontend.output_directory != detected_frontend.output_directory
+        ):
+            raise ValueError("Detected frontend classification changed during validation")
 
 
     def validate_react_vite_project(self, project_dir: Path):
-        package_json_path = project_dir / "package.json"
-
-        if not package_json_path.exists():
-            raise ValueError("Only React/Vite repositories with package.json are supported")
-
-        package_json = json.loads(package_json_path.read_text())
-        scripts = package_json.get("scripts", {})
-        dependencies = {
-            **package_json.get("dependencies", {}),
-            **package_json.get("devDependencies", {}),
-        }
-
-        if "build" not in scripts:
-            raise ValueError("React/Vite repositories must define an npm build script")
-
-        if "vite" not in dependencies or "react" not in dependencies:
-            raise ValueError("Only React/Vite repositories are supported")
+        """Backward-compatible validation wrapper for older callers/tests."""
+        self.validate_supported_frontend(project_dir)
 
 
-    def write_docker_assets(self, project_dir: Path):
+    def write_docker_assets(self, project_dir: Path, build_output_directory: str = "dist"):
         docai_dir = project_dir / ".docai"
         docai_dir.mkdir(exist_ok=True)
-        (project_dir / "Dockerfile").write_text(DOCKERFILE)
+        dockerfile = DOCKERFILE_TEMPLATE.format(
+            build_output_directory=build_output_directory
+        )
+        (project_dir / "Dockerfile").write_text(dockerfile)
         (project_dir / ".dockerignore").write_text(DOCKERIGNORE)
         (docai_dir / "nginx.conf").write_text(NGINX_CONF)
 
