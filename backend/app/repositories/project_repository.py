@@ -69,12 +69,14 @@ class ProjectRepository:
               project: Project,
               deployment_url: str,
               deployment_port: int,
-              container_name: str
+              container_name: str,
+              root_directory: str | None = None
     ):
          project.status = ProjectStatus.RUNNING
          project.deployment_url = deployment_url
          project.deployment_port = deployment_port
          project.container_name = container_name
+         project.root_directory = root_directory
          self.db.commit()
          self.db.refresh(project)
 

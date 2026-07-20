@@ -44,6 +44,7 @@ class ProjectDetailResponse(BaseModel):
     status: str
     deployment_url: Optional[str] = None
     subdomain: Optional[str] = None
+    root_directory: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
