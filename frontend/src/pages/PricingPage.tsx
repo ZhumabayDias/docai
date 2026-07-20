@@ -104,12 +104,12 @@ const comparisonRows: ComparisonRow[] = [
 
 const faqs: Faq[] = [
   {
-    question: "Is DocAI Cloud free?",
+    question: "Is Docai Cloud free?",
     answer: "Yes. The Free plan is available now for learning, personal projects and MVP development.",
   },
   {
     question: "Can I deploy private repositories?",
-    answer: "DocAI Cloud uses GitHub OAuth, so repository access depends on the permissions granted through your GitHub account.",
+    answer: "Docai Cloud uses GitHub OAuth, so repository access depends on the permissions granted through your GitHub account.",
   },
   {
     question: "Which frameworks are currently supported?",
@@ -117,7 +117,7 @@ const faqs: Faq[] = [
   },
   {
     question: "Do I need Docker installed locally?",
-    answer: "No. Docker image creation and container deployment are handled by DocAI Cloud on the deployment server.",
+    answer: "No. Docker image creation and container deployment are handled by Docai Cloud on the deployment server.",
   },
   {
     question: "When will Pro become available?",
@@ -156,7 +156,7 @@ export function PricingPage() {
             Simple Pricing for Every Developer
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Start with the free plan and grow with DocAI Cloud as new capabilities
+            Start with the free plan and grow with Docai Cloud as new capabilities
             become available.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
@@ -259,7 +259,7 @@ export function PricingPage() {
         <div className="mt-10 overflow-x-auto rounded-lg border border-white/10">
           <table className="min-w-[760px] w-full border-collapse bg-surface-raised text-left">
             <caption className="sr-only">
-              Compare Free, Pro and Enterprise availability across DocAI Cloud features.
+              Compare Free, Pro and Enterprise availability across Docai Cloud features.
             </caption>
             <thead>
               <tr className="border-b border-white/10">

@@ -68,7 +68,7 @@ import {
   
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-gray-300">
                 Whether you have questions, ideas, feedback, or simply want to
-                learn more about DocAI Cloud, feel free to reach out.
+                learn more about Docai Cloud, feel free to reach out.
                 We're always happy to connect with developers,
                 students and the open-source community.
               </p>
@@ -106,7 +106,7 @@ import {
               </h2>
   
               <p className="mt-4 text-gray-400">
-                Multiple ways to contact the DocAI Cloud team.
+                Multiple ways to contact the Docai Cloud team.
               </p>
   
             </div>
@@ -182,7 +182,7 @@ import {
               </h2>
               <p className="mt-6 max-w-3xl mx-auto text-lg leading-8 text-gray-400">
                 Whether you have questions, ideas, bug reports, or feature requests,
-                feel free to contact the DocAI Cloud team. We're here to help and
+                feel free to contact the Docai Cloud team. We're here to help and
                 eager to improve the platform with your input.
               </p>
             </Card>
@@ -197,7 +197,7 @@ import {
               </h2>
               <p className="mt-5 max-w-3xl mx-auto text-lg leading-8 text-gray-400">
                 Connect your GitHub account and deploy your first application
-                with DocAI Cloud in just a few minutes.
+                with Docai Cloud in just a few minutes.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-4">
                 <Button

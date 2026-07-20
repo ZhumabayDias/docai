@@ -84,7 +84,7 @@ export function FeaturesPage() {
             Powerful Cloud Deployment for Modern Developers
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Deploy your GitHub repositories with a simple workflow. DocAI Cloud
+            Deploy your GitHub repositories with a simple workflow. Docai Cloud
             automates building, deployment and container management so you can
             focus on development.
           </p>
@@ -136,7 +136,7 @@ export function FeaturesPage() {
       <section className="mx-auto max-w-7xl px-6 py-20" aria-labelledby="why-docai-title">
         <div className="max-w-2xl">
           <h2 id="why-docai-title" className="text-4xl font-black leading-tight text-white">
-            Why Choose DocAI Cloud?
+            Why Choose Docai Cloud?
           </h2>
         </div>
         <div className="mt-10 grid gap-5 md:grid-cols-3">

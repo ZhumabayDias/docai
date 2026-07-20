@@ -44,17 +44,17 @@ export function LandingNavbar() {
         <NavLink
           to="/"
           className="flex items-center gap-3 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-          aria-label="DocAI Cloud home"
+          aria-label="Docai Cloud home"
           onClick={() => setIsMenuOpen(false)}
         >
           <img
             src={logo}
-            alt="DocAI Cloud"
+            alt="Docai Cloud"
             className="h-10 w-10 object-contain"
           />
 
           <span className="text-xl font-bold text-white">
-             DocAI Cloud
+             Docai Cloud
           </span>
         </NavLink>
 
