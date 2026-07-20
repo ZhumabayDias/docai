@@ -29,6 +29,7 @@ class ProjectResponse(BaseModel):
     status: str
     created_at: datetime
     deployment_url: Optional[str] = None
+    subdomain: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True )
 
@@ -42,6 +43,7 @@ class ProjectDetailResponse(BaseModel):
     private: bool
     status: str
     deployment_url: Optional[str] = None
+    subdomain: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

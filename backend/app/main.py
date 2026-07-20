@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.config import CORS_ORIGINS
 from app.database import Base, engine, ensure_mvp_project_columns
-from app.routes import api_projects, auth, deploy, projects, users
+from app.routes import api_projects, auth, deploy, projects, routing, users
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_DIR = BASE_DIR / "static"
@@ -26,6 +26,7 @@ app.include_router(users.router)
 app.include_router(projects.router)
 app.include_router(deploy.router)
 app.include_router(api_projects.router)
+app.include_router(routing.router)
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")

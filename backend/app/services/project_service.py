@@ -4,6 +4,7 @@ from app.models.project import Project
 from app.models.user import User
 from app.repositories.project_repository import ProjectRepository
 from app.services.github_service import find_user, get_repo, get_repos
+from app.services.subdomain_service import SubdomainService
 from app.schemas.project import GitHubRepositoryResponse
 
 
@@ -56,6 +57,11 @@ class ProjectService:
             default_branch=repo["default_branch"],
             private=repo["private"],
             clone_url=repo["clone_url"],
+        )
+
+        subdomain_service = SubdomainService(self.repository)
+        project.subdomain = subdomain_service.generate_subdomain(
+            current_user.login, repo["name"]
         )
 
         return self.repository.create(project)

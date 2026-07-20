@@ -129,18 +129,18 @@ def test_deployment_url_returned_by_list_and_detail_endpoints(
 
     deploy_response = client.post(f"/api/projects/{project.id}/deploy")
     assert deploy_response.status_code == 200
-    assert deploy_response.json()["deployment_url"] == "http://127.0.0.1:9000"
+    assert deploy_response.json()["deployment_url"] == "https://octocat-docai-demo.docai.site"
 
     list_response = client.get("/api/projects")
     assert list_response.status_code == 200
     [listed_project] = [
         item for item in list_response.json() if item["id"] == project.id
     ]
-    assert listed_project["deployment_url"] == "http://127.0.0.1:9000"
+    assert listed_project["deployment_url"] == "https://octocat-docai-demo.docai.site"
 
     detail_response = client.get(f"/api/projects/{project.id}")
     assert detail_response.status_code == 200
-    assert detail_response.json()["deployment_url"] == "http://127.0.0.1:9000"
+    assert detail_response.json()["deployment_url"] == "https://octocat-docai-demo.docai.site"
 
 
 def test_delete_removes_container_image_directory_and_db_row(

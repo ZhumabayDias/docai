@@ -104,7 +104,7 @@ def test_api_deploy_mutates_project_status_to_running(
     assert response.status_code == 200
     assert response.json()["id"] == project.id
     assert response.json()["status"] == ProjectStatus.RUNNING
-    assert response.json()["deployment_url"] == "http://127.0.0.1:9000"
+    assert response.json()["deployment_url"] == "https://octocat-docai-demo.docai.site"
     assert legacy_deploy_success == [
         {
             "command": [
@@ -185,7 +185,7 @@ def test_api_deploy_mutates_project_status_to_running(
     read_after_deploy = client.get(f"/api/projects/{project.id}")
     assert read_after_deploy.status_code == 200
     assert read_after_deploy.json()["status"] == ProjectStatus.RUNNING
-    assert read_after_deploy.json()["deployment_url"] == "http://127.0.0.1:9000"
+    assert read_after_deploy.json()["deployment_url"] == "https://octocat-docai-demo.docai.site"
 
 
 def test_legacy_html_deploy_route_returns_status_only(

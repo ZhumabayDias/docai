@@ -30,6 +30,14 @@ class ProjectRepository:
                       Project.user_id == user_id, 
                       Project.repo_id == repo_id).first() is not None
                  )
+
+    def exists_by_subdomain(self, subdomain: str) -> bool:
+        return (
+            self.db.query(Project)
+            .filter(Project.subdomain == subdomain)
+            .first()
+            is not None
+        )
     
 
     def get_by_id_and_user(
