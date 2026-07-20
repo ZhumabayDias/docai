@@ -9,11 +9,11 @@ import { DocumentationPage } from "./pages/DocumentationPage";
 import { FeaturesPage } from "./pages/FeaturesPage";
 import { LandingPage } from "./pages/LandingPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PlaceholderPage } from "./pages/PlaceholderPage";
 import { PricingPage } from "./pages/PricingPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { ProjectDetailsPage } from "./pages/ProjectDetailsPage";
 import { ProjectsPage } from "./pages/ProjectsPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { ContactPage } from "./pages/ContactPage";
 
 export default function App() {
@@ -33,7 +33,7 @@ export default function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/projects" element={<ProjectsPage />} />
           <Route path="/projects/:projectId" element={<ProjectDetailsPage />} />
-          <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+          <Route path="/settings" element={<SettingsPage />} />
         </Route>
       </Route>
       <Route path="/404" element={<NotFoundPage />} />
