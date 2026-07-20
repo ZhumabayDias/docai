@@ -1,5 +1,4 @@
-import { CheckCircle2, ChevronDown, Github, MinusCircle } from "lucide-react";
-import { useState } from "react";
+import { CheckCircle2, Github, MinusCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "../components/Button";
@@ -24,11 +23,6 @@ type ComparisonRow = {
   free: boolean;
   pro: boolean;
   enterprise: boolean;
-};
-
-type Faq = {
-  question: string;
-  answer: string;
 };
 
 const plans: Plan[] = [
@@ -124,7 +118,6 @@ function AvailabilityCell({ available }: { available: boolean }) {
 export function PricingPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [openFaq, setOpenFaq] = useState(0);
 
   return (
     <div className="bg-[#09090B]">
