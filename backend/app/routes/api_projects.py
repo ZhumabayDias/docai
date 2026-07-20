@@ -11,6 +11,7 @@ from app.schemas.project import (
     ProjectResponse,
 )
 from app.security import get_current_user
+from app.services.deployment_failure import DeploymentFailure
 from app.services.deploy_service import DeployService
 from app.services.project_service import ProjectService
 
@@ -75,7 +76,17 @@ def deploy_project(
         raise HTTPException(status_code=404, detail="Project not found")
 
     service = DeployService(repository)
-    return service.deploy(project)
+
+    try:
+        return service.deploy(project)
+    except DeploymentFailure as failure:
+        raise HTTPException(
+            status_code=failure.http_status_code,
+            detail={
+                "code": failure.code.value,
+                "message": failure.message,
+            },
+        ) from failure
 
 
 @router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)

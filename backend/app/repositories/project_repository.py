@@ -64,6 +64,17 @@ class ProjectRepository:
 
          return project
 
+    def mark_building(
+              self,
+              project: Project
+    ):
+         project.status = ProjectStatus.BUILDING
+         project.deployment_error = None
+         self.db.commit()
+         self.db.refresh(project)
+
+         return project
+
     def mark_running(
               self,
               project: Project,
@@ -77,6 +88,7 @@ class ProjectRepository:
          project.deployment_port = deployment_port
          project.container_name = container_name
          project.root_directory = root_directory
+         project.deployment_error = None
          self.db.commit()
          self.db.refresh(project)
 
@@ -84,9 +96,11 @@ class ProjectRepository:
 
     def mark_failed(
               self,
-              project: Project
+              project: Project,
+              deployment_error: str | None = None
     ):
          project.status = ProjectStatus.FAILED
+         project.deployment_error = deployment_error
          self.db.commit()
          self.db.refresh(project)
 

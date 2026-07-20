@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { ArrowLeft, History, Layers, Rocket, SlidersHorizontal, Terminal } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -14,6 +15,7 @@ import { Tabs } from "../components/Tabs";
 import type { TabItem } from "../components/Tabs";
 import { deleteProject, deployProject } from "../services/projects";
 import { useProject } from "../hooks/useProject";
+import type { DeploymentStatus } from "../types/project";
 import { formatDateTime } from "../utils/date";
 
 const tabs: TabItem[] = [
@@ -53,6 +55,7 @@ export function ProjectDetailsPage() {
   const { error, loading, notFound, project, refetch } = useProject(safeProjectId);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionInProgress, setActionInProgress] = useState<"deploy" | "delete" | null>(null);
+  const [localDeploymentError, setLocalDeploymentError] = useState<string | null>(null);
   const [activeTabId, setActiveTabId] = useState(tabs[0].key);
 
   const handleDeploy = async () => {
@@ -61,13 +64,15 @@ export function ProjectDetailsPage() {
     }
 
     setActionError(null);
+    setLocalDeploymentError(null);
     setActionInProgress("deploy");
 
     try {
       await deployProject(project.id);
       await refetch();
     } catch (caughtError) {
-      setActionError(getFriendlyActionError(caughtError, "deploy"));
+      setLocalDeploymentError(getFriendlyActionError(caughtError, "deploy"));
+      await refetch();
     } finally {
       setActionInProgress(null);
     }
@@ -150,6 +155,9 @@ export function ProjectDetailsPage() {
   }
 
   const comingSoon = comingSoonConfig[activeTabId];
+  const displayStatus: DeploymentStatus = actionInProgress === "deploy" ? "BUILDING" : project.status;
+  const deploymentError =
+    actionInProgress === "deploy" ? null : localDeploymentError ?? project.deployment_error;
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -158,7 +166,7 @@ export function ProjectDetailsPage() {
           <p className="text-sm font-semibold text-accent-green">Project</p>
           <div className="mt-2 flex flex-wrap items-center gap-3">
             <h2 className="truncate text-3xl font-extrabold text-brand">{project.repo_name}</h2>
-            <StatusBadge status={project.status} />
+            <StatusBadge status={displayStatus} />
           </div>
           <p className="mt-2 truncate text-sm text-brand-muted">{project.repo_full_name}</p>
         </div>
@@ -166,7 +174,7 @@ export function ProjectDetailsPage() {
         <div className="flex flex-wrap gap-3">
           <Button
             icon={<Rocket className="h-4 w-4" />}
-            disabled={actionInProgress !== null}
+            disabled={actionInProgress !== null || displayStatus === "BUILDING"}
             onClick={() => {
               void handleDeploy();
             }}
@@ -202,6 +210,13 @@ export function ProjectDetailsPage() {
         </Card>
       ) : null}
 
+      {deploymentError ? (
+        <Card className="border-accent-red/30 bg-accent-red/10 text-accent-red">
+          <p className="font-semibold">Deployment failed</p>
+          <p className="mt-2 text-sm">{deploymentError}</p>
+        </Card>
+      ) : null}
+
       <Tabs activeTab={activeTabId} onChange={setActiveTabId} tabs={tabs} />
 
       {activeTabId === "overview" ? (
@@ -227,7 +242,7 @@ export function ProjectDetailsPage() {
           {/* The backend does not expose a container port on the project
               detail response yet, so DeploymentCard falls back to
               "Not available" rather than showing mock data. */}
-          <DeploymentCard deploymentUrl={project.deployment_url} status={project.status} />
+          <DeploymentCard deploymentUrl={project.deployment_url} status={displayStatus} />
         </div>
       ) : comingSoon ? (
         <EmptyState description={comingSoon.description} icon={comingSoon.icon} title="Coming soon" />
@@ -239,6 +254,19 @@ export function ProjectDetailsPage() {
 function getFriendlyActionError(error: unknown, action: "deploy" | "delete") {
   if (action === "delete") {
     return "Failed to delete project.";
+  }
+
+  if (axios.isAxiosError(error)) {
+    const detail = error.response?.data?.detail;
+
+    if (
+      typeof detail === "object" &&
+      detail !== null &&
+      "message" in detail &&
+      typeof detail.message === "string"
+    ) {
+      return detail.message;
+    }
   }
 
   return "Failed to deploy project.";

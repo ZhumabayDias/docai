@@ -219,10 +219,17 @@ def test_deploy_failure_persists_failed_project_status(
     response = client_without_server_exceptions.post(f"/api/projects/{project.id}/deploy")
 
     assert response.status_code == 500
+    assert response.json() == {
+        "detail": {
+            "code": "CLONE_FAILED",
+            "message": "Repository clone failed.",
+        }
+    }
 
     read_after_failure = client_without_server_exceptions.get(f"/api/projects/{project.id}")
     assert read_after_failure.status_code == 200
     assert read_after_failure.json()["status"] == ProjectStatus.FAILED
+    assert read_after_failure.json()["deployment_error"] == "Repository clone failed."
 
 
 def test_project_read_and_deploy_are_scoped_to_current_user(

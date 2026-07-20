@@ -1,4 +1,4 @@
-export type DeploymentStatus = "CREATED" | "BUILDING" | "RUNNING" | "FAILED";
+export type DeploymentStatus = "CREATED" | "BUILDING" | "RUNNING" | "FAILED" | "STOPPED";
 
 export interface Project {
   id: number;
@@ -11,6 +11,7 @@ export interface Project {
   private?: boolean;
   clone_url?: string;
   deployment_url?: string | null;
+  deployment_error?: string | null;
   updated_at?: string;
 }
 
@@ -23,6 +24,8 @@ export interface ProjectDetailResponse {
   private: boolean;
   status: DeploymentStatus;
   deployment_url: string | null;
+  deployment_error: string | null;
+  root_directory: string | null;
   created_at: string;
   updated_at: string;
 }
