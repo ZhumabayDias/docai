@@ -8,9 +8,10 @@ import { StatusBadge } from "./StatusBadge";
 type DeploymentCardProps = {
   status: DeploymentStatus;
   deploymentUrl?: string | null;
+  containerPort?: number | null;
 };
 
-export function DeploymentCard({ status, deploymentUrl }: DeploymentCardProps) {
+export function DeploymentCard({ containerPort, deploymentUrl, status }: DeploymentCardProps) {
   const hasDeploymentUrl = Boolean(deploymentUrl);
   const canOpenSite = status === "RUNNING" && hasDeploymentUrl;
 
@@ -20,47 +21,36 @@ export function DeploymentCard({ status, deploymentUrl }: DeploymentCardProps) {
 
       <div className="mt-5 space-y-4">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-muted">
-            Status
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-muted">Status</p>
           <div className="mt-2">
             <StatusBadge status={status} />
           </div>
         </div>
 
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-muted">
-            URL
-          </p>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-muted">URL</p>
           {hasDeploymentUrl ? (
+            <a
+              className="mt-2 block truncate text-sm font-semibold text-accent-blue hover:underline"
+              href={deploymentUrl ?? undefined}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {deploymentUrl}
+            </a>
+          ) : (
+            <p className="mt-2 text-sm text-brand-muted">No deployment available.</p>
+          )}
+        </div>
 
-<a
-
-  className="mt-2 block truncate text-sm font-semibold text-accent-blue hover:underline"
-
-  href={deploymentUrl ?? undefined}
-
-  target="_blank"
-
-  rel="noreferrer"
-
->
-
-  {deploymentUrl}
-
-</a>
-
-) : (
-
-<p className="mt-2 text-sm text-brand-muted">
-
-  No deployment available.
-
-</p>
-
-)}
-
-</div>
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-muted">
+            Container Port
+          </p>
+          <p className="mt-2 text-sm font-semibold text-brand">
+            {containerPort ?? "Not available"}
+          </p>
+        </div>
 
         {canOpenSite ? (
           <Button
