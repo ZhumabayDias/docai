@@ -38,7 +38,7 @@ type FaqItem = {
 const quickStartSteps: QuickStartStep[] = [
   {
     title: "Sign in using GitHub.",
-    description: "Authorize DocAI Cloud with your GitHub account.",
+    description: "Authorize Docai Cloud with your GitHub account.",
   },
   {
     title: "Import a repository.",
@@ -46,7 +46,7 @@ const quickStartSteps: QuickStartStep[] = [
   },
   {
     title: "Deploy your project.",
-    description: "DocAI Cloud builds and starts your application.",
+    description: "Docai Cloud builds and starts your application.",
   },
   {
     title: "Open your live application.",
@@ -89,8 +89,8 @@ const documentationCategories: DocumentationCategory[] = [
 
 const faqs: FaqItem[] = [
   {
-    question: "What is DocAI Cloud?",
-    answer: "DocAI Cloud is a deployment platform for importing GitHub repositories and running supported applications in Docker containers.",
+    question: "What is Docai Cloud?",
+    answer: "Docai Cloud is a deployment platform for importing GitHub repositories and running supported applications in Docker containers.",
   },
   {
     question: "How do I deploy my first project?",
@@ -106,7 +106,7 @@ const faqs: FaqItem[] = [
   },
   {
     question: "Is Docker required on my computer?",
-    answer: "No. Docker is used by DocAI Cloud on the deployment server, so you do not need Docker installed locally.",
+    answer: "No. Docker is used by Docai Cloud on the deployment server, so you do not need Docker installed locally.",
   },
   {
     question: "What features are coming next?",
@@ -131,7 +131,7 @@ export function DocumentationPage() {
             Documentation
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            Everything you need to deploy your first application with DocAI Cloud.
+            Everything you need to deploy your first application with Docai Cloud.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">
             <Button

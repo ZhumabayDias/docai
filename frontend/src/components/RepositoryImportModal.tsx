@@ -97,7 +97,7 @@ export function RepositoryImportModal({ open, onClose, onImported }: RepositoryI
             <div>
               <h2 className="text-xl font-bold text-brand">Import Project</h2>
               <p className="mt-1 text-sm text-brand-muted">
-                Choose a GitHub repository to import into DocAI Cloud.
+                Choose a GitHub repository to import into Docai Cloud.
               </p>
             </div>
             <Button

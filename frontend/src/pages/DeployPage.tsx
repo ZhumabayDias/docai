@@ -29,7 +29,7 @@ const pipeline: DeployItem[] = [
   {
     icon: Download,
     title: "Repository Import",
-    description: "DocAI securely clones your repository to the deployment server.",
+    description: "Docai securely clones your repository to the deployment server.",
   },
   {
     icon: Search,
@@ -101,7 +101,7 @@ export function DeployPage() {
             Deploy Your Application in Minutes
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-gray-300">
-            From GitHub repository to a live application. DocAI Cloud automates
+            From GitHub repository to a live application. Docai Cloud automates
             repository import, project detection, Docker image creation and deployment.
           </p>
           <div className="mt-8 flex flex-wrap gap-4">

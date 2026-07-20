@@ -76,7 +76,7 @@ export function ProjectsPage() {
             <div>
               <p className="text-lg font-bold text-brand">No projects yet</p>
               <p className="mt-2 text-sm text-brand-muted">
-                Import your first GitHub repository to deploy it with DocAI Cloud.
+                Import your first GitHub repository to deploy it with Docai Cloud.
               </p>
             </div>
             <Button icon={<Github className="h-4 w-4" />} onClick={openImportModal}>

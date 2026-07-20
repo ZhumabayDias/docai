@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import logo from "../assets/images/logo.png";
 
 import { navigation } from "../constants/navigation";
 import { cn } from "../utils/cn";
@@ -7,11 +8,13 @@ export function Sidebar() {
   return (
     <aside className="hidden min-h-screen w-64 border-r border-surface-border bg-surface-base px-4 py-5 lg:block">
       <div className="mb-8 flex items-center gap-3 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-brand text-sm font-black text-surface-base">
-          D
-        </div>
+        <img
+          src={logo}
+          alt="Docai Cloud"
+          className="h-9 w-9 object-contain"
+        />
         <div>
-          <p className="text-sm font-bold text-brand">DocAI Cloud</p>
+          <p className="text-sm font-bold text-brand">Docai Cloud</p>
           <p className="text-xs text-brand-muted">Deploy workspace</p>
         </div>
       </div>

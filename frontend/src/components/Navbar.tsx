@@ -13,7 +13,7 @@ export function Navbar() {
       <div className="flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-muted">
-            DocAI Cloud
+            Docai Cloud
           </p>
           <h1 className="truncate text-xl font-bold text-brand">Dashboard</h1>
         </div>
