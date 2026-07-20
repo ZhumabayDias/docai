@@ -41,6 +41,13 @@ class Project(Base):
     deployment_port: Mapped[Optional[int]] = mapped_column(nullable=True)
     container_name: Mapped[Optional[str]] = mapped_column(nullable=True)
 
+    # Repository-relative directory that was auto-detected as containing
+    # the deployable frontend (e.g. ".", "frontend", "apps/web"). Set by
+    # DeployService on a successful deploy; see
+    # app.services.frontend_detector for detection rules. Null until the
+    # project has been deployed at least once.
+    root_directory: Mapped[Optional[str]] = mapped_column(nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
 
     updated_at: Mapped[datetime] = mapped_column(

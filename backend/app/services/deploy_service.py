@@ -13,6 +13,10 @@ from app.config import (
 from app.constants.project_status import ProjectStatus
 from app.models.project import Project
 from app.repositories.project_repository import ProjectRepository
+from app.services.frontend_detector import (
+    detect_frontend_root,
+    resolve_frontend_directory,
+)
 from app.services.subdomain_service import ensure_project_subdomain
 
 
@@ -71,8 +75,11 @@ class DeployService:
                 project_dir
             )
 
-            self.validate_react_vite_project(project_dir)
-            self.write_docker_assets(project_dir)
+            frontend_root = self.detect_frontend_root(project_dir)
+            frontend_dir = resolve_frontend_directory(project_dir, frontend_root)
+
+            self.validate_react_vite_project(frontend_dir)
+            self.write_docker_assets(frontend_dir)
 
             image_name = self.get_image_name(project)
             container_name = self.get_container_name(project)
@@ -81,7 +88,7 @@ class DeployService:
             previous_image_id = self.get_image_id(image_name)
 
             self.remove_existing_container(container_name)
-            self.build_image(image_name, project_dir)
+            self.build_image(image_name, frontend_dir)
             self.run_container(container_name, image_name, deployment_port)
 
             self.remove_stale_image(image_name, previous_image_id)
@@ -92,6 +99,7 @@ class DeployService:
                 deployment_url,
                 deployment_port,
                 container_name,
+                root_directory=frontend_root,
             )
 
         except Exception:
@@ -164,6 +172,14 @@ class DeployService:
             f"https://x-access-token:{encoded_token}@",
             1,
         )
+
+
+    def detect_frontend_root(self, project_dir: Path) -> str:
+        """Detect which repository-relative directory contains the
+        deployable frontend. See `app.services.frontend_detector` for the
+        detection rules.
+        """
+        return detect_frontend_root(project_dir)
 
 
     def validate_react_vite_project(self, project_dir: Path):

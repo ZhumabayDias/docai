@@ -53,6 +53,7 @@ def ensure_mvp_project_columns():
             "deployment_port": "INTEGER",
             "container_name": "VARCHAR",
             "subdomain": "VARCHAR",
+            "root_directory": "VARCHAR",
         }
 
         for column_name, column_type in columns.items():
