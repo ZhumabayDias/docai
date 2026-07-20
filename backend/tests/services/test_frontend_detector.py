@@ -3,7 +3,10 @@ import json
 import pytest
 
 from app.services.frontend_detector import (
+    CREATE_REACT_APP_BUILD_TYPE,
+    VITE_BUILD_TYPE,
     FrontendDetectionError,
+    detect_frontend,
     detect_frontend_root,
     resolve_frontend_directory,
 )
@@ -15,6 +18,8 @@ def write_package_json(
     build=True,
     react=True,
     vite=True,
+    react_scripts=False,
+    build_command=None,
     extra_dependencies=None,
     extra_scripts=None,
 ):
@@ -22,7 +27,9 @@ def write_package_json(
 
     scripts = {}
     if build:
-        scripts["build"] = "vite build"
+        scripts["build"] = build_command or (
+            "react-scripts build" if react_scripts else "vite build"
+        )
     if extra_scripts:
         scripts.update(extra_scripts)
 
@@ -31,6 +38,8 @@ def write_package_json(
         dependencies["react"] = "^18.0.0"
     if vite:
         dependencies["vite"] = "^5.0.0"
+    if react_scripts:
+        dependencies["react-scripts"] = "5.0.1"
     if extra_dependencies:
         dependencies.update(extra_dependencies)
 
@@ -44,13 +53,73 @@ def write_backend_marker(directory):
     (directory / "requirements.txt").write_text("fastapi\n")
 
 
+def write_node_backend_package_json(directory):
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "package.json").write_text(
+        json.dumps(
+            {
+                "scripts": {
+                    "build": "tsc",
+                    "start": "node dist/server.js",
+                },
+                "dependencies": {
+                    "express": "^4.18.0",
+                    "typescript": "^5.0.0",
+                },
+            }
+        )
+    )
+
+
+def write_cra_package_json(directory):
+    write_package_json(
+        directory,
+        vite=False,
+        react_scripts=True,
+        extra_dependencies={"react-dom": "^18.2.0"},
+        extra_scripts={"start": "react-scripts start"},
+    )
+
+
+def write_real_production_cra_package_json(directory):
+    directory.mkdir(parents=True, exist_ok=True)
+    (directory / "package.json").write_text(
+        json.dumps(
+            {
+                "name": "kiinip-frontend",
+                "version": "1.0.0",
+                "private": True,
+                "proxy": "http://localhost:3001",
+                "dependencies": {
+                    "react": "^18.2.0",
+                    "react-dom": "^18.2.0",
+                    "react-scripts": "5.0.1",
+                },
+                "scripts": {
+                    "start": "react-scripts start",
+                    "build": "react-scripts build",
+                },
+                "browserslist": {
+                    "production": [">0.2%", "not dead"],
+                    "development": ["last 1 chrome version"],
+                },
+            }
+        )
+    )
+
+
 # TEST 1 — frontend at repository root
 
 
 def test_detects_root_when_frontend_is_at_repository_root(tmp_path):
     write_package_json(tmp_path)
 
+    detected = detect_frontend(tmp_path)
+
     assert detect_frontend_root(tmp_path) == "."
+    assert detected.root_directory == "."
+    assert detected.build_type == VITE_BUILD_TYPE
+    assert detected.output_directory == "dist"
 
 
 # TEST 2 — conventional backend/ + frontend/
@@ -60,7 +129,11 @@ def test_detects_frontend_directory_in_fullstack_repo(tmp_path):
     write_backend_marker(tmp_path / "backend")
     write_package_json(tmp_path / "frontend")
 
-    assert detect_frontend_root(tmp_path) == "frontend"
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "frontend"
+    assert detected.build_type == VITE_BUILD_TYPE
+    assert detected.output_directory == "dist"
 
 
 # TEST 3 — server/ + client/
@@ -71,6 +144,79 @@ def test_detects_client_directory(tmp_path):
     write_package_json(tmp_path / "client")
 
     assert detect_frontend_root(tmp_path) == "client"
+
+
+def test_detects_root_create_react_app(tmp_path):
+    write_cra_package_json(tmp_path)
+
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "."
+    assert detected.build_type == CREATE_REACT_APP_BUILD_TYPE
+    assert detected.output_directory == "build"
+
+
+def test_detects_create_react_app_in_frontend_directory(tmp_path):
+    write_node_backend_package_json(tmp_path / "backend")
+    write_cra_package_json(tmp_path / "frontend")
+
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "frontend"
+    assert detected.build_type == CREATE_REACT_APP_BUILD_TYPE
+    assert detected.output_directory == "build"
+
+
+def test_detects_create_react_app_in_client_directory(tmp_path):
+    write_node_backend_package_json(tmp_path / "server")
+    write_cra_package_json(tmp_path / "client")
+
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "client"
+    assert detected.build_type == CREATE_REACT_APP_BUILD_TYPE
+    assert detected.output_directory == "build"
+
+
+def test_node_backend_package_json_with_build_script_is_not_frontend(tmp_path):
+    write_node_backend_package_json(tmp_path / "backend")
+
+    with pytest.raises(FrontendDetectionError):
+        detect_frontend(tmp_path)
+
+
+def test_selects_frontend_cra_over_root_workspace_and_backend_node(tmp_path):
+    (tmp_path / "package.json").write_text(
+        json.dumps(
+            {
+                "private": True,
+                "workspaces": ["backend", "frontend"],
+                "scripts": {"build": "npm run build --workspaces"},
+            }
+        )
+    )
+    write_node_backend_package_json(tmp_path / "backend")
+    write_cra_package_json(tmp_path / "frontend")
+
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "frontend"
+    assert detected.build_type == CREATE_REACT_APP_BUILD_TYPE
+    assert detected.output_directory == "build"
+
+
+def test_real_production_cra_fullstack_repository_selects_frontend(tmp_path):
+    (tmp_path / "package.json").write_text(
+        json.dumps({"private": True, "scripts": {"build": "echo root"}})
+    )
+    write_node_backend_package_json(tmp_path / "backend")
+    write_real_production_cra_package_json(tmp_path / "frontend")
+
+    detected = detect_frontend(tmp_path)
+
+    assert detected.root_directory == "frontend"
+    assert detected.build_type == CREATE_REACT_APP_BUILD_TYPE
+    assert detected.output_directory == "build"
 
 
 # TEST 4 — api/ + web/
