@@ -8,7 +8,6 @@ import {
   
   import { Button } from "../components/Button";
   import { Card } from "../components/Card";
-  import { MarketingFooter } from "../components/MarketingFooter";
   
   type ContactItem = {
     icon: React.ReactNode;
