@@ -12,6 +12,7 @@ const statusStyles: Record<DeploymentStatus, string> = {
   BUILDING: "border-accent-amber/30 bg-accent-amber/10 text-accent-amber",
   RUNNING: "border-accent-green/30 bg-accent-green/10 text-accent-green",
   FAILED: "border-accent-red/30 bg-accent-red/10 text-accent-red",
+  STOPPED: "border-brand-muted/30 bg-surface-subtle text-brand-muted",
 };
 
 export function StatusBadge({ status }: StatusBadgeProps) {

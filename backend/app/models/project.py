@@ -40,6 +40,7 @@ class Project(Base):
     deployment_url: Mapped[Optional[str]] = mapped_column(nullable=True)
     deployment_port: Mapped[Optional[int]] = mapped_column(nullable=True)
     container_name: Mapped[Optional[str]] = mapped_column(nullable=True)
+    deployment_error: Mapped[Optional[str]] = mapped_column(nullable=True)
 
     # Repository-relative directory that was auto-detected as containing
     # the deployable frontend (e.g. ".", "frontend", "apps/web"). Set by

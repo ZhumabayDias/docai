@@ -9,7 +9,7 @@ from app.models.user import User
 from app.repositories.project_repository import ProjectRepository
 from app.security import create_access_token
 from app.services.deploy_service import DeployService
-from app.services.frontend_detector import FrontendDetectionError
+from app.services.deployment_failure import DeploymentFailure
 
 
 def create_user(db_session, user_id=1, login="octocat"):
@@ -290,10 +290,11 @@ def test_deploy_fails_cleanly_when_no_frontend_is_detected(
     repository = ProjectRepository(db_session)
     service = DeployService(repository)
 
-    with pytest.raises(FrontendDetectionError):
+    with pytest.raises(DeploymentFailure):
         service.deploy(project)
 
     assert project.status == ProjectStatus.FAILED
+    assert project.deployment_error == "No supported frontend application was detected."
 
 
 def test_deploy_endpoint_returns_500_and_marks_failed_when_no_frontend_detected(
@@ -312,8 +313,18 @@ def test_deploy_endpoint_returns_500_and_marks_failed_when_no_frontend_detected(
 
     response = client.post(f"/api/projects/{project.id}/deploy")
 
-    assert response.status_code == 500
+    assert response.status_code == 422
+    assert response.json() == {
+        "detail": {
+            "code": "FRONTEND_NOT_DETECTED",
+            "message": "No supported frontend application was detected.",
+        }
+    }
 
     detail_response = client.get(f"/api/projects/{project.id}")
     assert detail_response.status_code == 200
     assert detail_response.json()["status"] == ProjectStatus.FAILED
+    assert (
+        detail_response.json()["deployment_error"]
+        == "No supported frontend application was detected."
+    )

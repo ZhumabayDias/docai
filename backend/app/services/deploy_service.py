@@ -1,4 +1,5 @@
 from pathlib import Path
+import logging
 import subprocess
 import shutil
 from urllib.parse import quote
@@ -12,13 +13,24 @@ from app.config import (
 from app.constants.project_status import ProjectStatus
 from app.models.project import Project
 from app.repositories.project_repository import ProjectRepository
+from app.services.deployment_failure import (
+    DeploymentFailure,
+    clone_failed_failure,
+    container_build_failed_failure,
+    container_start_failed_failure,
+    deployment_failed_failure,
+    frontend_not_detected_failure,
+)
 from app.services.frontend_detector import (
     DetectedFrontend,
+    FrontendDetectionError,
     classify_frontend_directory,
     detect_frontend,
     resolve_frontend_directory,
 )
 from app.services.subdomain_service import ensure_project_subdomain
+
+logger = logging.getLogger("app.deploy")
 
 
 DOCKERFILE_TEMPLATE = """FROM node:20-alpine AS build
@@ -64,26 +76,30 @@ class DeployService:
 
 
     def deploy(self, project:Project):
-        self.repository.update_status(
-            project,
-            ProjectStatus.BUILDING
-        )
+        self.repository.mark_building(project)
 
         try:
             project_dir = self.prepare_directory(project)
 
-            self.clone_repository(
-                project,
-                project_dir
-            )
+            try:
+                self.clone_repository(
+                    project,
+                    project_dir
+                )
+            except subprocess.CalledProcessError as error:
+                raise clone_failed_failure() from error
 
-            detected_frontend = self.detect_frontend(project_dir)
-            frontend_dir = resolve_frontend_directory(
-                project_dir,
-                detected_frontend.root_directory,
-            )
+            try:
+                detected_frontend = self.detect_frontend(project_dir)
+                frontend_dir = resolve_frontend_directory(
+                    project_dir,
+                    detected_frontend.root_directory,
+                )
 
-            self.validate_supported_frontend(frontend_dir, detected_frontend)
+                self.validate_supported_frontend(frontend_dir, detected_frontend)
+            except FrontendDetectionError as error:
+                raise frontend_not_detected_failure() from error
+
             self.write_docker_assets(
                 frontend_dir,
                 detected_frontend.output_directory,
@@ -96,8 +112,15 @@ class DeployService:
             previous_image_id = self.get_image_id(image_name)
 
             self.remove_existing_container(container_name)
-            self.build_image(image_name, frontend_dir)
-            self.run_container(container_name, image_name, deployment_port)
+            try:
+                self.build_image(image_name, frontend_dir)
+            except subprocess.CalledProcessError as error:
+                raise container_build_failed_failure() from error
+
+            try:
+                self.run_container(container_name, image_name, deployment_port)
+            except subprocess.CalledProcessError as error:
+                raise container_start_failed_failure() from error
 
             self.remove_stale_image(image_name, previous_image_id)
 
@@ -110,9 +133,18 @@ class DeployService:
                 root_directory=detected_frontend.root_directory,
             )
 
-        except Exception:
-            self.repository.mark_failed(project)
+        except DeploymentFailure as failure:
+            logger.exception(
+                "deployment.failed",
+                extra={"project_id": project.id, "code": failure.code.value},
+            )
+            self.repository.mark_failed(project, failure.message)
             raise
+        except Exception as error:
+            failure = deployment_failed_failure()
+            logger.exception("deployment.unexpected_failed", extra={"project_id": project.id})
+            self.repository.mark_failed(project, failure.message)
+            raise failure from error
 
         return project
 
